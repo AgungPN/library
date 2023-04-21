@@ -4,12 +4,18 @@ require_once __DIR__ . "/../../app/init.php";
 if (!isLoggedToAdmin()) {
   to_view("auth-login");
 }
-
-$db = new Database();
 $user = userAuth();
 
+$categoryController = new Catergory();
 $bookController = new Book();
-$books = $bookController->index();
+
+$categories = $categoryController->index();
+
+$book = $bookController->view($_GET['book_id']);
+
+if (isset($_POST['update-book'])) {
+  $bookController->update($_POST);
+}
 ?>
 
 <!DOCTYPE html>
@@ -19,6 +25,7 @@ $books = $bookController->index();
   <meta charset="UTF-8">
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
   <title>Blank Page &mdash; Stisla</title>
+
   <!-- General CSS Files -->
   <link rel="stylesheet" href="<?= asset('modules/bootstrap/css/bootstrap.min.css') ?>">
   <link rel="stylesheet" href="<?= asset('modules/fontawesome/css/all.min.css') ?>">
@@ -33,9 +40,6 @@ $books = $bookController->index();
   <!-- toast popup message -->
   <link rel="stylesheet" href="<?= asset('modules/izitoast/css/iziToast.min.css') ?>">
   <script src="<?= asset('modules/izitoast/js/iziToast.min.js') ?>"></script>
-
-  <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css">
-  <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap4.min.css">
 
   <!-- Start GA -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=UA-94034622-3"></script>
@@ -55,7 +59,7 @@ $books = $bookController->index();
 
 <body>
 
-<?php FlashMessage::message();  ?>
+<?php FlashMessage::getFlashMessageArray(); ?>
 
 <div id="app">
   <div class="main-wrapper main-wrapper-1">
@@ -73,7 +77,7 @@ $books = $bookController->index();
         <li class="dropdown"><a href="#" data-toggle="dropdown"
                                 class="nav-link dropdown-toggle nav-link-lg nav-link-user">
             <img alt="image" src="<?= asset('img/avatar/avatar-1.png') ?>" class="rounded-circle mr-1">
-            <div class="d-sm-none d-lg-inline-block">Hi, <?= $user->name ?>  </div>
+            <div class="d-sm-none d-lg-inline-block">Hi, <?= $user->name ?></div>
           </a>
           <div class="dropdown-menu dropdown-menu-right">
             <div class="dropdown-divider"></div>
@@ -107,45 +111,65 @@ $books = $bookController->index();
         </div>
 
         <div class="section-body">
-          <a href="create.php" class="btn btn-primary mb-3 px-3">Add Book</a>
-          <table id="myTable" class="table table-striped table-bordered" style="width:100%">
-            <thead>
-            <tr>
-              <th>No</th>
-              <th>Name</th>
-              <th>Author</th>
-              <th>Description</th>
-              <th>Publish At</th>
-              <th>Category</th>
-              <th>Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            <?php $i = 1;
-            foreach ($books as $book): ?>
-              <tr>
-                <td><?= $i++ ?></td>
-                <td><?= $book->name ?></td>
-                <td><?= $book->author ?></td>
-                <td><?= $book->description ?></td>
-                <td><?= $book->publish_at ?></td>
-                <td class="badge badge-secondary"><?= $book->category ?></td>
-                <td>
-                  <a href="delete.php?book_id=<?= $book->id ?>" onclick="return confirm('apa anda yakin ingin menghapus data ini?')" class="btn btn-danger">Delete</a>
-                  <a href="edit.php?book_id=<?= $book->id ?>" class="btn btn-success">Edit</a>
-                </td>
-              </tr>
-            <?php endforeach; ?>
-            </tbody>
-          </table>
-        </div>
+          <div class="col-md-8">
+            <div class="card">
+              <div class="card-header">
+                <h4 class=" w-100 text-center text-success">Update Books</h4>
+              </div>
+              <div class="card-body">
+                <form action="" method="post">
+
+                  <input type="hidden" name="id" value="<?= $book->id ?>">
+
+                  <div class="form-group">
+                    <label>Name Book</label>
+                    <input type="text" class="form-control" name="name" value="<?= $book->name ?>"/>
+                  </div>
+
+                  <div class="form-group">
+                    <label>Author Book</label>
+                    <input type="text" class="form-control" name="author" value="<?= $book->author ?>">
+                  </div>
+
+                  <div class="form-group">
+                    <label>Category</label>
+                    <div class="selectric-wrapper selectric-form-control selectric-selectric">
+                      <div class="selectric-hide-select">
+                        <select class="form-control selectric" tabindex="-1" name="category_id">
+                          <?php foreach ($categories as $category): ?>
+                            <option <?= $book->category_id === $category->id ? 'selected' : '' ?>
+                              value="<?= $category->id ?>"><?= $category->category ?></option>
+                          <?php endforeach; ?>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label>Publish At</label>
+                    <input type="date" class="form-control" name="publish_at" value="<?= $book->publish_at ?>"/>
+                  </div>
+
+                  <div class="form-group mb-0">
+                    <label>Description</label>
+                    <textarea class="form-control" required="" name="description"><?= $book->description ?></textarea>
+                  </div>
+
+                  <div class="card-footer text-right">
+                    <button class="btn btn-success" name="update-book">Update</button>
+                  </div>
+
+                </form>
+              </div>
+            </div>
+          </div>
       </section>
     </div>
     <footer class="main-footer">
       <div class="footer-left">
-        Copyright &copy; 2023
+        Copyright &copy; 2018
         <div class="bullet"></div>
-        Design By <a href="">Kelompok Library</a>
+        Design By <a href="https://nauval.in/">Muhamad Nauval Azhar</a>
       </div>
       <div class="footer-right">
 

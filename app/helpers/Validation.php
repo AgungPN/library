@@ -33,9 +33,13 @@ class Validation
             if ($value != $source[$ruleValue]) $this->setError("$item tidak sama dengan $ruleValue");
             break;
           case 'unique':
-            $data = $this->db->getOne("SELECT " . $ruleValue['field'] . ",id FROM " . $ruleValue['table'] . " WHERE " . $ruleValue['field'] . " = " . ":$item");
-
-            if ($data && $data->id != $ruleValue['escapeId']) $this->setError("$item value is already used");
+            // example $sql = SELECT name,id FROM books WHERE name = 'Harry Potter'
+            $sql = "SELECT " . $ruleValue['field'] . ",id FROM " . $ruleValue['table'] . " WHERE " . $ruleValue['field'] . " = " . "'$value'";
+            
+            // example sql + escapeId =  SELECT name,id FROM books WHERE name = 'Harry Potter' AND id != 2;
+            $data = $this->db->table('users')->getOne($sql . (isset($ruleValue['escapeId']) ? " AND id != " . $ruleValue['escapeId'] : ""));
+            
+            if (!is_null($data)) $this->setError("$item value is already used");
             break;
         }
       }

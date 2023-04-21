@@ -8,8 +8,8 @@ if (!isLoggedToAdmin()) {
 $db = new Database();
 $user = userAuth();
 
-$bookController = new Book();
-$books = $bookController->index();
+$userController = new User();
+$users = $userController->index();
 ?>
 
 <!DOCTYPE html>
@@ -18,7 +18,7 @@ $books = $bookController->index();
 <head>
   <meta charset="UTF-8">
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
-  <title>Blank Page &mdash; Stisla</title>
+  <title>Library</title>
   <!-- General CSS Files -->
   <link rel="stylesheet" href="<?= asset('modules/bootstrap/css/bootstrap.min.css') ?>">
   <link rel="stylesheet" href="<?= asset('modules/fontawesome/css/all.min.css') ?>">
@@ -55,7 +55,7 @@ $books = $bookController->index();
 
 <body>
 
-<?php FlashMessage::message();  ?>
+<?php FlashMessage::message(); ?>
 
 <div id="app">
   <div class="main-wrapper main-wrapper-1">
@@ -103,36 +103,43 @@ $books = $bookController->index();
     <div class="main-content">
       <section class="section">
         <div class="section-header">
-          <h1>Books Management</h1>
+          <h1>User Management</h1>
         </div>
 
         <div class="section-body">
-          <a href="create.php" class="btn btn-primary mb-3 px-3">Add Book</a>
           <table id="myTable" class="table table-striped table-bordered" style="width:100%">
             <thead>
             <tr>
               <th>No</th>
               <th>Name</th>
-              <th>Author</th>
-              <th>Description</th>
-              <th>Publish At</th>
-              <th>Category</th>
+              <th width="25%">Address</th>
+              <th>Email</th>
+              <th>Gender</th>
+              <th>Role</th>
               <th>Action</th>
             </tr>
             </thead>
             <tbody>
             <?php $i = 1;
-            foreach ($books as $book): ?>
+            foreach ($users as $usr): ?>
               <tr>
                 <td><?= $i++ ?></td>
-                <td><?= $book->name ?></td>
-                <td><?= $book->author ?></td>
-                <td><?= $book->description ?></td>
-                <td><?= $book->publish_at ?></td>
-                <td class="badge badge-secondary"><?= $book->category ?></td>
+                <td><?= $usr->name ?></td>
+                <td><?= $usr->address ?></td>
+                <td><?= $usr->email ?></td>
+                <td><?= $usr->gender ?></td>
+                <td><?php
+                  if ($usr->is_admin == 1) {
+                    echo "<div class='badge badge-warning'>Admin</div>";
+                  } else {
+                    echo "<div class='badge badge-info'>Visitor</div>";
+                  }
+                  ?></td>
                 <td>
-                  <a href="delete.php?book_id=<?= $book->id ?>" onclick="return confirm('apa anda yakin ingin menghapus data ini?')" class="btn btn-danger">Delete</a>
-                  <a href="edit.php?book_id=<?= $book->id ?>" class="btn btn-success">Edit</a>
+                  <a href="delete.php?book_id=<?= $usr->id ?>"
+                     onclick="return confirm('apa anda yakin ingin menghapus data ini?')"
+                     class="btn btn-danger">Delete</a>
+                  <a href="edit.php?book_id=<?= $usr->id ?>" class="btn btn-success">Edit</a>
                 </td>
               </tr>
             <?php endforeach; ?>

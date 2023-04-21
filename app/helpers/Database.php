@@ -1,8 +1,10 @@
 <?php
 
+require_once __DIR__ . "/../../env.php";
+
 class Database
 {
-  private $host = "localhost", $username = "root", $password = "", $database = "library";
+  private $host = DB_HOST, $username = DB_USERNAME, $password = DB_PASSWORD, $database = DB_NAME;
   private ?string $table, $where = '';
   private array $query = [];
   public $mysql, $affected_rows;
@@ -100,7 +102,7 @@ class Database
   }
 
   /** get list data */
-  public function getList(?string $sql): ?object
+  public function getList(?string $sql = null): ?object
   {
     if (is_null($sql)) {
       $limit = isset($this->query['limit']) ? $this->query['limit'] : '';

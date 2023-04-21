@@ -1,10 +1,10 @@
 <?php
 
-class Book extends BaseController
+class User extends BaseController
 {
   public function index()
   {
-    return $this->db->getList("SELECT *,categories.category,books.id AS id FROM books LEFT JOIN categories ON categories.id = books.category_id");
+    return $this->db->table('users')->getList();
   }
 
   private function ruleValidation(array $input, bool $isNew): array

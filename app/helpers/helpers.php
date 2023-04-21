@@ -57,3 +57,9 @@ function dd(...$value)
   print_r($value);
   die;
 }
+
+function userAuth()
+{
+  $db = new Database();
+  return $db->table('users')->where('id', '=', $_SESSION['auth_id'])->getOne();
+}
