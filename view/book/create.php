@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . "/../../app/init.php";
-
 if (!isLoggedToAdmin()) {
   to_view("auth-login");
 }
@@ -57,6 +56,7 @@ if (isset($_POST['store-book'])) {
 <body>
 
 <?php FlashMessage::getFlashMessageArray(); ?>
+<?php FlashMessage::message(); ?>
 
 <div id="app">
   <div class="main-wrapper main-wrapper-1">
@@ -114,8 +114,8 @@ if (isset($_POST['store-book'])) {
                 <h4 class=" w-100 text-center text-primary">Create New Books</h4>
               </div>
               <div class="card-body">
-                <form action="" method="post">
-
+                <form action="" method="post" enctype="multipart/form-data">
+                  
                   <div class="form-group">
                     <label>Name Book</label>
                     <input type="text" class="form-control" name="name"/>
@@ -142,6 +142,16 @@ if (isset($_POST['store-book'])) {
                   <div class="form-group">
                     <label>Publish At</label>
                     <input type="date" class="form-control" name="publish_at"/>
+                  </div>
+
+                  <div class="form-group">
+                    <label>File PDF E-Book</label>
+                    <input type="file" class="form-control" name="file">
+                  </div>
+
+                  <div class="form-group">
+                    <label>Cover</label>
+                    <input type="file" class="form-control" name="cover">
                   </div>
 
                   <div class="form-group mb-0">

@@ -55,7 +55,7 @@ $books = $bookController->index();
 
 <body>
 
-<?php FlashMessage::message();  ?>
+<?php FlashMessage::message(); ?>
 
 <div id="app">
   <div class="main-wrapper main-wrapper-1">
@@ -112,9 +112,9 @@ $books = $bookController->index();
             <thead>
             <tr>
               <th>No</th>
+              <th>Cover</th>
               <th>Name</th>
               <th>Author</th>
-              <th>Description</th>
               <th>Publish At</th>
               <th>Category</th>
               <th>Action</th>
@@ -125,13 +125,15 @@ $books = $bookController->index();
             foreach ($books as $book): ?>
               <tr>
                 <td><?= $i++ ?></td>
+                <td><img src="<?= asset("covers/".$book->cover) ?>" alt="cover" width="70" height="70"></td>
                 <td><?= $book->name ?></td>
                 <td><?= $book->author ?></td>
-                <td><?= $book->description ?></td>
                 <td><?= $book->publish_at ?></td>
                 <td class="badge badge-secondary"><?= $book->category ?></td>
                 <td>
-                  <a href="delete.php?book_id=<?= $book->id ?>" onclick="return confirm('apa anda yakin ingin menghapus data ini?')" class="btn btn-danger">Delete</a>
+                  <a href="delete.php?book_id=<?= $book->id ?>"
+                     onclick="return confirm('apa anda yakin ingin menghapus data ini?')"
+                     class="btn btn-danger">Delete</a>
                   <a href="edit.php?book_id=<?= $book->id ?>" class="btn btn-success">Edit</a>
                 </td>
               </tr>

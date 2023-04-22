@@ -9,7 +9,7 @@ define("BASE_URL", "http://localhost/" . BASE_PATH . "/");
  */
 function asset(?string $path = null): string
 {
-  return is_null($path) ? BASE_URL . "/public/assets/" : BASE_URL . "/public/assets/" . $path;
+  return is_null($path) ? BASE_URL . "public/assets/" : BASE_URL . "public/assets/" . $path;
 }
 
 /**
@@ -18,7 +18,7 @@ function asset(?string $path = null): string
  */
 function path(?string $path = null): string
 {
-  return is_null($path) ? getcwd() . '/assets/' : getcwd() . "/assets/" . $path;
+  return is_null($path) ? FULL_PATH . '/public/assets/' : FULL_PATH . "/public/assets/" . $path;
 }
 
 function to_view(string $file)
@@ -56,6 +56,13 @@ function dd(...$value)
   echo "<pre>";
   print_r($value);
   die;
+}
+
+/** Helper debug like laravel */
+function dump(...$value)
+{
+  echo "<pre>";
+  print_r($value);
 }
 
 function userAuth()

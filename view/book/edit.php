@@ -60,6 +60,7 @@ if (isset($_POST['update-book'])) {
 <body>
 
 <?php FlashMessage::getFlashMessageArray(); ?>
+<?php FlashMessage::message(); ?>
 
 <div id="app">
   <div class="main-wrapper main-wrapper-1">
@@ -117,7 +118,7 @@ if (isset($_POST['update-book'])) {
                 <h4 class=" w-100 text-center text-success">Update Books</h4>
               </div>
               <div class="card-body">
-                <form action="" method="post">
+                <form action="" method="post" enctype="multipart/form-data">
 
                   <input type="hidden" name="id" value="<?= $book->id ?>">
 
@@ -149,6 +150,18 @@ if (isset($_POST['update-book'])) {
                     <label>Publish At</label>
                     <input type="date" class="form-control" name="publish_at" value="<?= $book->publish_at ?>"/>
                   </div>
+
+
+                  <div class="form-group">
+                    <label>File PDF E-Book</label>
+                    <input type="file" class="form-control" name="file">
+                  </div>
+
+                  <div class="form-group">
+                    <label>Cover</label>
+                    <input type="file" class="form-control" name="cover">
+                  </div>
+
 
                   <div class="form-group mb-0">
                     <label>Description</label>

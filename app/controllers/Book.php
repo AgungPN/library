@@ -49,11 +49,19 @@ class Book extends BaseController
       return;
     }
 
-    $this->db->table('books')->insert('name,description,author,publish_at,category_id', 'ssssi',
-      $name, $description, $author, $publish_at, $category_id);
+    try {
+      $cover = Storage::putFileAs('covers', 'cover');
+      $filePdf = Storage::putFileAs('book-pdf', 'file', ['pdf']);
 
-    FlashMessage::setFlash("success", "Success to create new book");
-    to_view('book/index');
+      $this->db->table('books')->insert('name,description,author,publish_at,category_id,cover,file', 'ssssiss',
+        $name, $description, $author, $publish_at, $category_id, $cover, $filePdf);
+
+      FlashMessage::setFlash("success", "Success to create new book");
+      to_view('book/index');
+    } catch (Exception $e) {
+      FlashMessage::setFlash("error", $e->getMessage());
+    }
+
   }
 
   public function view($book_id)
@@ -76,20 +84,42 @@ class Book extends BaseController
       return;
     }
 
-    $this->db->table('books')->update([
-      'name' => $name,
-      'description' => $description,
-      'author' => $author,
-      'publish_at' => $publish_at,
-      'category_id' => $category_id
-    ], 'ssssii', $id);
+    $book = $this->db->table('books')->where('id', '=', $id)->getOne();
+    $cover = $book->cover;
+    $pdfFile = $book->file;
 
-    FlashMessage::setFlash("success", "Success to create new book");
-    to_view('book/index');
+    try {
+      if (!empty($_FILES['cover']['name'])) {
+        $cover = Storage::putFileAs('covers', 'cover');
+      }
+      if (!empty($_FILES['file']['name'])) {
+        $pdfFile = Storage::putFileAs('book-pdf', 'file', ['pdf']);
+      }
+
+      $this->db->table('books')->update([
+        'name' => $name,
+        'description' => $description,
+        'author' => $author,
+        'publish_at' => $publish_at,
+        'cover' => $cover,
+        'file' => $pdfFile,
+        'category_id' => $category_id
+      ], 'ssssssii', $id);
+
+      FlashMessage::setFlash("success", "Success to create new book");
+      to_view('book/index');
+    }catch (Exception $e){
+      FlashMessage::setFlash("error", $e->getMessage());
+    }
+
   }
 
   public function delete($book_id)
   {
+    $book = $this->db->table('books')->where('id', '=', $book_id)->getOne();
+    Storage::delete('book-pdf', $book->file);
+    Storage::delete('covers', $book->cover);
+
     $this->db->table('books')->destroy($book_id);
     FlashMessage::setFlash("success", "Success to remove book");
     to_view('book/index');
