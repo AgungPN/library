@@ -86,3 +86,13 @@ function userAuth()
   $db = new Database();
   return $db->table('users')->where('id', '=', $_SESSION['auth_id'])->getOne();
 }
+
+function diffDays($firstDate, $secondDate)
+{
+  $firstDateTime = new DateTime($firstDate);
+  $secondDateTime = new DateTime($secondDate);
+  $interval = $secondDateTime->diff($firstDateTime);
+
+  $daysDifference = $interval->format('%a');
+  return $daysDifference;
+}

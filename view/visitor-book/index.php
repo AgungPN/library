@@ -109,7 +109,7 @@ if (isset($_GET['search'])) {
             <div class="col-12 col-sm-6 col-md-6 col-lg-3">
               <article class="article article-style-b">
                 <div class="article-header">
-                  <div class="article-image" data-background="<?= asset($book->cover) ?>"
+                  <div class="article-image" data-background="<?= asset('covers/' . $book->cover) ?>"
                        style="background-image: url('<?= asset('covers/' . $book->cover) ?>');">
                   </div>
                 </div>

@@ -13,6 +13,8 @@ if (isset($_POST['change-status'])) {
   $penaltyService->updateStatus($_POST['penalty_id'], $_POST['status']);
 }
 
+$today = date('Y-m-d');
+
 ?>
 
 <!DOCTYPE html>
@@ -103,9 +105,12 @@ if (isset($_POST['change-status'])) {
         </div>
         <ul class="sidebar-menu">
           <li class="menu-header">Dashboard</li>
-          <li><a class="nav-link" href="../book/index.php"><i class="fas fa-solid fa-book"></i> <span>Books</span></a></li>
-          <li><a class="nav-link" href="../user/index.php"><i class="fas fa-solid fa-users"></i> <span>Users</span></a></li>
-          <li><a class="nav-link" href="../penalty/index.php"><i class="fas fa-solid fa-exclamation-circle"></i> <span>Penalty</span></a></li>
+          <li><a class="nav-link" href="../book/index.php"><i class="fas fa-solid fa-book"></i> <span>Books</span></a>
+          </li>
+          <li><a class="nav-link" href="../user/index.php"><i class="fas fa-solid fa-users"></i> <span>Users</span></a>
+          </li>
+          <li><a class="nav-link" href="../penalty/index.php"><i class="fas fa-solid fa-exclamation-circle"></i> <span>Penalty</span></a>
+          </li>
         </ul>
       </aside>
     </div>
@@ -133,12 +138,15 @@ if (isset($_POST['change-status'])) {
             <tbody>
             <?php $i = 1;
             foreach ($penalties as $penalty): ?>
+
+              <?php $daysDiff = diffDays($penalty->expired_at, $today) ?>
+
               <tr>
                 <td><?= $i++ ?></td>
                 <td><?= $penalty->username ?></td>
                 <td><?= $penalty->name ?></td>
-                <td><strong class="text-danger"><?= $penalty->count_days ?> Days</strong></td>
-                <td><strong class="text-primary"><?= 'Rp.' . $penalty->count_days * PENALTY_PRICE ?></strong></td>
+                <td><strong class="text-danger"><?= $daysDiff ?> Days</strong></td>
+                <td><strong class="text-primary"><?= 'Rp.' . $daysDiff * PENALTY_PRICE ?></strong></td>
                 <td>
                   <?php
                   if ($penalty->status === 'Paid') {

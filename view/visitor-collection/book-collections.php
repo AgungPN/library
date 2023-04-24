@@ -8,6 +8,11 @@ $user = userAuth();
 
 $collectionService = new Collection();
 $books = $collectionService->visitorCollection($user->id);
+
+if (isset($_GET['return_book_id'])) {
+  $collectionService->returnBook($user->id, $_GET['return_book_id']);
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -57,6 +62,9 @@ $books = $collectionService->visitorCollection($user->id);
 </head>
 
 <body class="layout-3">
+
+<?php FlashMessage::getMessage(); ?>
+
 <div id="app">
   <div class="main-wrapper container">
     <div class="navbar-bg"></div>
@@ -129,9 +137,10 @@ $books = $collectionService->visitorCollection($user->id);
                 <td><?= $book->name ?></td>
                 <td><?= $book->author ?></td>
                 <td><strong class="text-warning"><?= $book->expired_at ?></strong></td>
-                <td > <span class="badge badge-secondary"><?= $book->category ?></span></td>
+                <td><span class="badge badge-secondary"><?= $book->category ?></span></td>
                 <td>
                   <a href="reading.php?id=<?= $book->id ?>" class="btn btn-info">Read</a>
+                  <a href="?return_book_id=<?= $book->id ?>" class="btn btn-warning">Return Book</a>
                 </td>
               </tr>
             <?php endforeach; ?>

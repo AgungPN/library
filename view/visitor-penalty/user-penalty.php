@@ -8,6 +8,9 @@ $user = userAuth();
 
 $penaltyService = new Penalty();
 $penalties = $penaltyService->userPenalties($user->id);
+
+$today = date('Y-m-d');
+
 ?>
 
 <!DOCTYPE html>
@@ -110,6 +113,54 @@ $penalties = $penaltyService->userPenalties($user->id);
     <div class="main-content">
       <section class="section">
 
+        <div class="card">
+          <div class="card-body row">
+
+            <div class="col-md-4">
+
+              <div class="media">
+                <a href="#">
+                  <img alt="image" class="mr-3 rounded" width="50" src="<?= asset('img/bca-logo.png') ?>">
+                </a>
+                <div class="media-body">
+                  <div class="media-right"></div>
+                  <div class="media-title"><a href="#">Rekening 1</a></div>
+                  <div class="text-small text-muted">083432345943</div>
+                </div>
+              </div>
+
+            </div>
+            <div class="col-md-4">
+
+              <div class="media">
+                <a href="#">
+                  <img alt="image" class="mr-3 rounded" width="50" src="<?= asset('img/bca-logo.png') ?>">
+                </a>
+                <div class="media-body">
+                  <div class="media-right"></div>
+                  <div class="media-title"><a href="#">Rekening 2</a></div>
+                  <div class="text-small text-muted">08345943</div>
+                </div>
+              </div>
+
+            </div>
+            <div class="col-md-4">
+
+              <div class="media">
+                <a href="#">
+                  <img alt="image" class="mr-3 rounded" width="50" src="<?= asset('img/bca-logo.png') ?>">
+                </a>
+                <div class="media-body">
+                  <div class="media-right"></div>
+                  <div class="media-title"><a href="#">Rekening 3</a></div>
+                  <div class="text-small text-muted">08345943</div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
         <div class="section-body">
           <table id="myTable" class="table table-striped table-bordered" style="width:100%">
             <thead>
@@ -127,13 +178,16 @@ $penalties = $penaltyService->userPenalties($user->id);
             <tbody>
             <?php $i = 1;
             foreach ($penalties as $penalty): ?>
+
+              <?php $daysDiff = diffDays($penalty->expired_at, $today) ?>
+
               <tr>
                 <td><?= $i++ ?></td>
                 <td><img src="<?= asset("covers/" . $penalty->cover) ?>" alt="cover" width="70" height="70"></td>
                 <td><?= $penalty->name ?></td>
                 <td><?= $penalty->author ?></td>
-                <td><strong class="text-danger"><?= $penalty->count_days ?> Days</strong></td>
-                <td><strong class="text-primary"><?= 'Rp.' . $penalty->count_days * PENALTY_PRICE ?></strong></td>
+                <td><strong class="text-danger"><?= $daysDiff ?> Days</strong></td>
+                <td><strong class="text-primary"><?= 'Rp.' . $daysDiff * PENALTY_PRICE ?></strong></td>
                 <td>
                   <?php
                   if ($penalty->status === 'Paid') {
