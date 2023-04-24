@@ -6,13 +6,14 @@ if (!isLoggedToVisitor()) {
 }
 $user = userAuth();
 
-$bookController = new Book();
-$books = $bookController->index();
+$bookService = new Book();
+// if not isset $_GET['id'] then set empty string '' 
+$book = $bookService->view($_GET['id'] ?? '');
 
-if (isset($_GET['search'])) {
-  $books = $bookController->index($_GET['search']);
+if (isset($_POST['add-collection'])) {
+  $collectionService = new Collection();
+  $collectionService->addCollection($user->id, $_POST['book_id']);
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -36,6 +37,17 @@ if (isset($_GET['search'])) {
 
   <!-- Start GA -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=UA-94034622-3"></script>
+
+  <style>
+    .img-cover {
+      width: 60vw;
+      height: 50vh;
+      object-fit: cover;
+      border-radius: 8px;
+      box-shadow: 1px 2px 10px #666;
+    }
+  </style>
+
   <script>
     window.dataLayer = window.dataLayer || [];
 
@@ -95,7 +107,7 @@ if (isset($_GET['search'])) {
     <nav class="navbar navbar-secondary navbar-expand-lg">
       <div class="container">
         <div class="navbar-nav">
-          <h1 class=" fa-2x">List Books</h1>
+          <h1 class=" fa-2x">Detail Book</h1>
         </div>
       </div>
     </nav>
@@ -103,30 +115,42 @@ if (isset($_GET['search'])) {
     <!-- Main Content -->
     <div class="main-content">
       <section class="section">
+
         <div class="row">
-
-          <?php foreach ($books as $book): ?>
-            <div class="col-12 col-sm-6 col-md-6 col-lg-3">
-              <article class="article article-style-b">
-                <div class="article-header">
-                  <div class="article-image" data-background="<?= asset($book->cover) ?>"
-                       style="background-image: url('<?= asset('covers/' . $book->cover) ?>');">
-                  </div>
-                </div>
-                <div class="article-details">
-                  <div class="article-title">
-                    <h2><a href="detail.php?id=<?= $book->id ?>"><?= $book->name ?></a></h2>
-                  </div>
-                  <p><?= limit_word($book->description) ?></p>
-                  <div class="article-cta">
-                    <a href="detail.php?id=<?= $book->id ?>">Read More <i class="fas fa-chevron-right"></i></a>
-                  </div>
-                </div>
-              </article>
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-body">
+                <img src="<?= asset('covers/' . $book->cover) ?>" alt="" class="img-cover" style="width: 100%;">
+              </div>
             </div>
-          <?php endforeach; ?>
+          </div>
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <h4>Information About Book</h4>
+              </div>
+              <div class="card-body">
+                <p><strong><i class="ml-3 fas fa-user mr-1"></i> Author: </strong><?= $book->author ?></p>
+                <p><strong> <i class="ml-3 mr-1 fas fa-calendar"></i> Publish At: </strong><?= $book->publish_at ?></p>
+                <p><strong> <i class="ml-3 mr-1 fas fa-tag"></i> Category: </strong><?= $book->category ?></p>
 
+                <p><?= $book->description ?></p>
+              </div>
+              <div class="card-footer">
+                <div class="d-flex justify-content-end mt-2">
+                  <form action="" method="post">
+                    <input type="hidden" name="book_id" value="<?= $book->id ?>">
+                    <button type="submit" name="add-collection" class="btn btn-primary mr-2"><i class="fas fa-plus"></i>
+                      Add Collection
+                    </button>
+                  </form>
+                  <a href="index.php" class="btn btn-secondary"><i class="fas fa-backward"></i> Back</a>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+
       </section>
     </div>
     <footer class="main-footer">

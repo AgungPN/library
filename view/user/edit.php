@@ -6,15 +6,11 @@ if (!isLoggedToAdmin()) {
 }
 $user = userAuth();
 
-$categoryController = new Catergory();
-$bookController = new Book();
+$userService = new User();
+$userUpdate = $userService->view($_GET['user_id'] ?? '');
 
-$categories = $categoryController->index();
-
-$book = $bookController->view($_GET['book_id']);
-
-if (isset($_POST['update-book'])) {
-  $bookController->update($_POST);
+if (isset($_POST['update-user'])) {
+  $userService->update($_POST);
 }
 ?>
 
@@ -91,14 +87,19 @@ if (isset($_POST['update-book'])) {
     <div class="main-sidebar sidebar-style-2">
       <aside id="sidebar-wrapper">
         <div class="sidebar-brand">
-          <a href="index.html">Library</a>
+          <a href="">Library</a>
         </div>
         <div class="sidebar-brand sidebar-brand-sm">
           <a href="index.html">St</a>
         </div>
         <ul class="sidebar-menu">
           <li class="menu-header">Dashboard</li>
-          <li><a class="nav-link" href="credits.html"><i class="fas fa-solid fa-book"></i> <span>Books</span></a></li>
+          <li><a class="nav-link" href="../book/index.php"><i class="fas fa-solid fa-book"></i> <span>Books</span></a>
+          </li>
+          <li><a class="nav-link" href="../user/index.php"><i class="fas fa-solid fa-users"></i> <span>Users</span></a>
+          </li>
+          <li><a class="nav-link" href="../penalty/index.php"><i class="fas fa-solid fa-exclamation-circle"></i> <span>Penalty</span></a>
+          </li>
         </ul>
       </aside>
     </div>
@@ -107,69 +108,92 @@ if (isset($_POST['update-book'])) {
     <div class="main-content">
       <section class="section">
         <div class="section-header">
-          <h1>Books Management</h1>
+          <h1>Users Management</h1>
         </div>
 
         <div class="section-body">
           <div class="col-md-8">
-            <div class="card">
+            <div class="card card-primary">
               <div class="card-header">
-                <h4 class=" w-100 text-center text-success">Update Books</h4>
+                <h4 class=" w-100 text-center text-primary">Update User</h4>
               </div>
               <div class="card-body">
                 <form action="" method="post">
 
-                  <input type="hidden" name="id" value="<?= $book->id ?>">
+                  <input type="hidden" name="id" value="<?= $userUpdate->id ?>">
 
-                  <div class="form-group">
-                    <label>Name Book</label>
-                    <input type="text" class="form-control" name="name" value="<?= $book->name ?>"/>
+
+                  <div class="form-group row align-items-center">
+                    <label class="col-md-2 text-md-right text-left">Name</label>
+                    <div class="col-md-9">
+                      <input type="text" name="name" class="form-control" value="<?= $userUpdate->name ?>">
+                    </div>
                   </div>
-
-                  <div class="form-group">
-                    <label>Author Book</label>
-                    <input type="text" class="form-control" name="author" value="<?= $book->author ?>">
-                  </div>
-
-                  <div class="form-group">
-                    <label>Category</label>
-                    <div class="selectric-wrapper selectric-form-control selectric-selectric">
-                      <div class="selectric-hide-select">
-                        <select class="form-control selectric" tabindex="-1" name="category_id">
-                          <?php foreach ($categories as $category): ?>
-                            <option <?= $book->category_id === $category->id ? 'selected' : '' ?>
-                              value="<?= $category->id ?>"><?= $category->category ?></option>
-                          <?php endforeach; ?>
-                        </select>
-                      </div>
+                  <div class="form-group row align-items-center">
+                    <label class="col-md-2 text-md-right text-left">Email</label>
+                    <div class=" col-md-9">
+                      <input type="email" name="email" class="form-control" value="<?= $userUpdate->email ?>">
                     </div>
                   </div>
 
-                  <div class="form-group">
-                    <label>Publish At</label>
-                    <input type="date" class="form-control" name="publish_at" value="<?= $book->publish_at ?>"/>
+                  <div class="form-group row">
+                    <label class="col-md-2 text-md-right text-left mt-2">Address</label>
+                    <div class="col-md-9">
+                      <textarea class="form-control" name="address"><?= $userUpdate->address ?></textarea>
+                    </div>
                   </div>
 
-                  <div class="form-group mb-0">
-                    <label>Description</label>
-                    <textarea class="form-control" required="" name="description"><?= $book->description ?></textarea>
+                  <div class="form-group row">
+
+                    <label for="last_name" class="col-md-2 text-md-right text-left mt-2">Gender</label>
+                    <div class="col-md-9">
+                      <select name="gender" id="gender" class="form-control">
+                        <option value="Laki-Laki" <?= $userUpdate->gender == 'Laki-Laki' ? 'selected' : '' ?> >
+                          Laki-Laki
+                        </option>
+                        <option value="Perempuan" <?= $userUpdate->gender == 'Perempuan' ? 'selected' : '' ?>>
+                          Perempuan
+                        </option>
+                      </select>
+                    </div>
                   </div>
 
-                  <div class="card-footer text-right">
-                    <button class="btn btn-success" name="update-book">Update</button>
-                  </div>
-
-                </form>
               </div>
+
+              <div class="form-group row">
+                <div class="col-md-3"></div>
+                <div class="col-md-7">
+                  <div class="selectgroup w-100">
+                    <label class="selectgroup-item">
+                      <input type="radio" name="is_admin" value="1"
+                             class="selectgroup-input" <?= $userUpdate->is_admin == 1 ? 'checked' : '' ?>>
+                      <span class="selectgroup-button">Admin</span>
+                    </label>
+                    <label class="selectgroup-item">
+                      <input type="radio" name="is_admin" value="0"
+                             class="selectgroup-input" <?= $userUpdate->is_admin == 0 ? 'checked' : '' ?>>
+                      <span class="selectgroup-button">Visitor</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+
+              <div class="card-footer text-right">
+                <button class="btn btn-primary" name="update-user">Update</button>
+              </div>
+
+              </form>
             </div>
           </div>
+        </div>
       </section>
     </div>
     <footer class="main-footer">
       <div class="footer-left">
-        Copyright &copy; 2018
+        Copyright &copy; 2023
         <div class="bullet"></div>
-        Design By <a href="https://nauval.in/">Muhamad Nauval Azhar</a>
+        Design By <a href="">Kelompok Library</a>
       </div>
       <div class="footer-right">
 

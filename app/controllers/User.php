@@ -7,91 +7,64 @@ class User extends BaseController
     return $this->db->table('users')->getList();
   }
 
-  private function ruleValidation(array $input, bool $isNew): array
+  public function view($userId)
   {
-    $rules = [
-      'name' => [
-        'required' => true,
-        'min' => 5,
-        'unique' => [
-          'field' => 'name',
-          'table' => 'books',
-          'escapeId' => $isNew ? null : $input['id']
-        ],
-      ],
-      'description' => [
-        'required' => true,
-        'min' => 10
-      ],
-      'author' => ['required' => true],
-      'category_id' => ['required' => true],
-      'publish_at' => ['required' => true]
-    ];
-
-    $validate = new Validation();
-    $validate->check($input, $rules);
-
-    return $validate->notPassed() ? $validate->error() : [];
-  }
-
-  public function store(array $input)
-  {
-    $name = htmlspecialchars($input['name']);
-    $description = htmlspecialchars($input['description']);
-    $author = htmlspecialchars($input['author']);
-    $category_id = htmlspecialchars($input['category_id']);
-    $publish_at = htmlspecialchars($input['publish_at']);
-
-    $errorMessages = $this->ruleValidation($input, true);
-
-    if (!empty($errorMessages)) {
-      FlashMessage::setFlashMessageArray('error', $errorMessages);
-      return;
-    }
-
-    $this->db->table('books')->insert('name,description,author,publish_at,category_id', 'ssssi',
-      $name, $description, $author, $publish_at, $category_id);
-
-    FlashMessage::setFlash("success", "Success to create new book");
-    to_view('book/index');
-  }
-
-  public function view($book_id)
-  {
-    return $this->db->table('books')->where('id', '=', $book_id)->getOne();
+    return $this->db->table('users')->where('id', '=', $userId)->getOne();
   }
 
   public function update(array $input)
   {
-    $id = htmlspecialchars($input['id']);
-    $name = htmlspecialchars($input['name']);
-    $description = htmlspecialchars($input['description']);
-    $author = htmlspecialchars($input['author']);
-    $category_id = htmlspecialchars($input['category_id']);
-    $publish_at = htmlspecialchars($input['publish_at']);
+    $validation = new Validation();
+    $validation->check($input, [
+      'name' => [
+        'required' => true,
+        'min' => 10,
+        'max' => 80,
+      ],
+      'email' => [
+        'required' => true,
+        'min' => 10,
+        'max' => 80,
+        'unique' => ['table' => 'users', 'field' => 'email', 'escapeId' => $input['id']]
+      ],
+      'address' => [
+        'required' => true,
+        'min' => 10,
+        'max' => 80,
+      ],
+      'gender' => [
+        'required' => true,
+      ],
+    ]);
 
-    $errorMessages = $this->ruleValidation($input, false);
-    if (!empty($errorMessages)) {
-      FlashMessage::setFlashMessageArray('error', $errorMessages);
+    if ($validation->notPassed()) {
+      $errors = $validation->error();
+      FlashMessage::setFlashMessageArray("error", $errors);
       return;
     }
 
-    $this->db->table('books')->update([
-      'name' => $name,
-      'description' => $description,
-      'author' => $author,
-      'publish_at' => $publish_at,
-      'category_id' => $category_id
-    ], 'ssssii', $id);
+    $username = htmlspecialchars($input['name']);
+    $email = htmlspecialchars($input['email']);
+    $address = htmlspecialchars($input['address']);
+    $gender = htmlspecialchars($input['gender']);
+    $isAdmin = htmlspecialchars($input['is_admin']);
 
-    FlashMessage::setFlash("success", "Success to create new book");
-    to_view('book/index');
+    $this->db->table('users')->update([
+      'name' => $username,
+      'email' => $email,
+      'address' => $address,
+      'gender' => $gender,
+      'is_admin' => $isAdmin
+    ], 'ssssii', $input['id']);
+
+    FlashMessage::setFlash("success", "Success update data user");
+    to_view("user/index");
   }
 
   public function delete($book_id)
   {
-    $this->db->table('books')->destroy($book_id);
-    FlashMessage::setFlash("success", "Success to remove book");
-    to_view('book/index');
+    $this->db->table('users')->destroy($book_id);
+    FlashMessage::setFlash("success", "Success to remove user");
+    to_view('user/index');
   }
 }

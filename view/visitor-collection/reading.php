@@ -7,12 +7,8 @@ if (!isLoggedToVisitor()) {
 $user = userAuth();
 
 $bookController = new Book();
-$books = $bookController->index();
-
-if (isset($_GET['search'])) {
-  $books = $bookController->index($_GET['search']);
-}
-
+// if not isset $_GET['id'] then set empty string '' 
+$book = $bookController->view($_GET['id'] ?? '');
 ?>
 
 <!DOCTYPE html>
@@ -36,6 +32,17 @@ if (isset($_GET['search'])) {
 
   <!-- Start GA -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=UA-94034622-3"></script>
+
+  <style>
+    .img-cover {
+      width: 60vw;
+      height: 50vh;
+      object-fit: cover;
+      border-radius: 8px;
+      box-shadow: 1px 2px 10px #666;
+    }
+  </style>
+
   <script>
     window.dataLayer = window.dataLayer || [];
 
@@ -51,9 +58,6 @@ if (isset($_GET['search'])) {
 </head>
 
 <body class="layout-3">
-
-<?php FlashMessage::getMessage(); ?>
-
 <div id="app">
   <div class="main-wrapper container">
     <div class="navbar-bg"></div>
@@ -65,11 +69,11 @@ if (isset($_GET['search'])) {
           <i class="fas fa-ellipsis-v"></i>
         </a>
         <ul class="navbar-nav">
-          <li class="nav-item active"><a href="../visitor-book/index.php" class="nav-link">
+          <li class="nav-item"><a href="../visitor-book/index.php" class="nav-link">
               <i class="fas fa-book mr-1"></i>Books</a></li>
-          <li class="nav-item"><a href="../visitor-collection/book-collections.php" class="nav-link">
+          <li class="nav-item active"><a href="../visitor-collection/book-collections.php" class="nav-link">
               <i class="fas fa-list mr-1"></i>Collections</a></li>
-          <li class="nav-item"><a href="../visitor-penalty/user-penalty.php" class="nav-link">
+          <li class="nav-item "><a href="../visitor-penalty/user-penalty.php" class="nav-link">
               <i class="fas fa-exclamation-circle mr-1"></i>Penalty</a></li>
         </ul>
       </div>
@@ -95,7 +99,7 @@ if (isset($_GET['search'])) {
     <nav class="navbar navbar-secondary navbar-expand-lg">
       <div class="container">
         <div class="navbar-nav">
-          <h1 class=" fa-2x">List Books</h1>
+          <h1 class=" fa-2x">Detail Book</h1>
         </div>
       </div>
     </nav>
@@ -103,29 +107,22 @@ if (isset($_GET['search'])) {
     <!-- Main Content -->
     <div class="main-content">
       <section class="section">
-        <div class="row">
+        <h4 class="text-center mb-2"><?= $book->name ?></h4>
 
-          <?php foreach ($books as $book): ?>
-            <div class="col-12 col-sm-6 col-md-6 col-lg-3">
-              <article class="article article-style-b">
-                <div class="article-header">
-                  <div class="article-image" data-background="<?= asset($book->cover) ?>"
-                       style="background-image: url('<?= asset('covers/' . $book->cover) ?>');">
-                  </div>
-                </div>
-                <div class="article-details">
-                  <div class="article-title">
-                    <h2><a href="detail.php?id=<?= $book->id ?>"><?= $book->name ?></a></h2>
-                  </div>
-                  <p><?= limit_word($book->description) ?></p>
-                  <div class="article-cta">
-                    <a href="detail.php?id=<?= $book->id ?>">Read More <i class="fas fa-chevron-right"></i></a>
-                  </div>
-                </div>
-              </article>
+        <div class="d-flex justify-content-center align-items-center flex-row">
+          <div class="">
+            <img src="<?= asset('covers/' . $book->cover) ?>" alt="" class="img-cover text-center mx-auto mb-1 mt-3">
+            <p class="text-center"><strong><i class="fas fa-user mr-1"></i> Author: </strong><?= $book->author ?>
+              <strong> <i class="ml-3 mr-1 fas fa-calendar"></i> Publish At: </strong><?= $book->publish_at ?>
+              <strong> <i class="ml-3 mr-1 fas fa-tag"></i> Category: </strong><?= $book->category ?>
+            </p>
+
+            <embed src="<?= asset('book-pdf/'.$book->file) ?>#toolbar=0" type="application/pdf" width="100%" height="600px">
+
+            <div class="d-flex justify-content-end mt-2">
+              <a href="book-collections.php" class="btn btn-info">Back</a>
             </div>
-          <?php endforeach; ?>
-
+          </div>
         </div>
       </section>
     </div>

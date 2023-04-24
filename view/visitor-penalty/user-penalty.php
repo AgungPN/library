@@ -1,30 +1,25 @@
 <?php
 require_once __DIR__ . "/../../app/init.php";
 
-if (!isLoggedToAdmin()) {
+if (!isLoggedToVisitor()) {
   to_view("auth-login");
 }
-
-$db = new Database();
 $user = userAuth();
 
-$userController = new User();
-$users = $userController->index();
+$penaltyService = new Penalty();
+$penalties = $penaltyService->userPenalties($user->id);
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
   <title>Library</title>
+
   <!-- General CSS Files -->
   <link rel="stylesheet" href="<?= asset('modules/bootstrap/css/bootstrap.min.css') ?>">
   <link rel="stylesheet" href="<?= asset('modules/fontawesome/css/all.min.css') ?>">
-
-  <!-- CSS Libraries -->
-  <link rel="stylesheet" href="<?= asset('modules/izitoast/css/iziToast.min.css') ?>">
 
   <!-- Template CSS -->
   <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
@@ -34,11 +29,19 @@ $users = $userController->index();
   <link rel="stylesheet" href="<?= asset('modules/izitoast/css/iziToast.min.css') ?>">
   <script src="<?= asset('modules/izitoast/js/iziToast.min.js') ?>"></script>
 
-  <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css">
-  <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap4.min.css">
-
   <!-- Start GA -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=UA-94034622-3"></script>
+
+  <style>
+    .img-cover {
+      width: 60vw;
+      height: 50vh;
+      object-fit: cover;
+      border-radius: 8px;
+      box-shadow: 1px 2px 10px #666;
+    }
+  </style>
+
   <script>
     window.dataLayer = window.dataLayer || [];
 
@@ -53,20 +56,30 @@ $users = $userController->index();
   <!-- /END GA -->
 </head>
 
-<body>
+<body class="layout-3">
 
 <?php FlashMessage::getMessage(); ?>
 
 <div id="app">
-  <div class="main-wrapper main-wrapper-1">
+  <div class="main-wrapper container">
     <div class="navbar-bg"></div>
     <nav class="navbar navbar-expand-lg main-navbar">
-      <form class="form-inline mr-auto">
-        <ul class="navbar-nav mr-3">
-          <li><a href="#" data-toggle="sidebar" class="nav-link nav-link-lg"><i class="fas fa-bars"></i></a></li>
-          <li><a href="#" data-toggle="search" class="nav-link nav-link-lg d-sm-none"><i class="fas fa-search"></i></a>
-          </li>
+      <a href="#" class="navbar-brand sidebar-gone-hide">Library</a>
+      <a href="#" class="nav-link sidebar-gone-show" data-toggle="sidebar"><i class="fas fa-bars"></i></a>
+      <div class="nav-collapse">
+        <a class="sidebar-gone-show nav-collapse-toggle nav-link" href="#">
+          <i class="fas fa-ellipsis-v"></i>
+        </a>
+        <ul class="navbar-nav">
+          <li class="nav-item"><a href="../visitor-book/index.php" class="nav-link">
+              <i class="fas fa-book mr-1"></i>Books</a></li>
+          <li class="nav-item"><a href="../visitor-collection/book-collections.php" class="nav-link">
+              <i class="fas fa-list mr-1"></i>Collections</a></li>
+          <li class="nav-item active"><a href="../visitor-penalty/user-penalty.php" class="nav-link">
+              <i class="fas fa-exclamation-circle mr-1"></i>Penalty</a></li>
         </ul>
+      </div>
+      <form class="form-inline ml-auto" method="get" action="">
       </form>
       <ul class="navbar-nav navbar-right">
 
@@ -84,73 +97,64 @@ $users = $userController->index();
         </li>
       </ul>
     </nav>
-    <div class="main-sidebar sidebar-style-2">
-      <aside id="sidebar-wrapper">
-        <div class="sidebar-brand">
-          <a href="">Library</a>
+
+    <nav class="navbar navbar-secondary navbar-expand-lg">
+      <div class="container">
+        <div class="navbar-nav">
+          <h1 class=" fa-2x">User Penalties</h1>
         </div>
-        <div class="sidebar-brand sidebar-brand-sm">
-          <a href="index.html">St</a>
-        </div>
-        <ul class="sidebar-menu">
-          <li class="menu-header">Dashboard</li>
-          <li><a class="nav-link" href="../book/index.php"><i class="fas fa-solid fa-book"></i> <span>Books</span></a>
-          </li>
-          <li><a class="nav-link" href="../user/index.php"><i class="fas fa-solid fa-users"></i> <span>Users</span></a>
-          </li>
-          <li><a class="nav-link" href="../penalty/index.php"><i class="fas fa-solid fa-exclamation-circle"></i> <span>Penalty</span></a>
-          </li>
-        </ul>
-      </aside>
-    </div>
+      </div>
+    </nav>
 
     <!-- Main Content -->
     <div class="main-content">
       <section class="section">
-        <div class="section-header">
-          <h1>User Management</h1>
-        </div>
 
         <div class="section-body">
           <table id="myTable" class="table table-striped table-bordered" style="width:100%">
             <thead>
             <tr>
               <th>No</th>
+              <th>Cover</th>
               <th>Name</th>
-              <th width="25%">Address</th>
-              <th>Email</th>
-              <th>Gender</th>
-              <th>Role</th>
+              <th>Author</th>
+              <th>Expired Days</th>
+              <th>Penalty Price</th>
+              <th>Status</th>
               <th>Action</th>
             </tr>
             </thead>
             <tbody>
             <?php $i = 1;
-            foreach ($users as $usr): ?>
+            foreach ($penalties as $penalty): ?>
               <tr>
                 <td><?= $i++ ?></td>
-                <td><?= $usr->name ?></td>
-                <td><?= $usr->address ?></td>
-                <td><?= $usr->email ?></td>
-                <td><?= $usr->gender ?></td>
-                <td><?php
-                  if ($usr->is_admin == 1) {
-                    echo "<div class='badge badge-warning'>Admin</div>";
-                  } else {
-                    echo "<div class='badge badge-info'>Visitor</div>";
-                  }
-                  ?></td>
+                <td><img src="<?= asset("covers/" . $penalty->cover) ?>" alt="cover" width="70" height="70"></td>
+                <td><?= $penalty->name ?></td>
+                <td><?= $penalty->author ?></td>
+                <td><strong class="text-danger"><?= $penalty->count_days ?> Days</strong></td>
+                <td><strong class="text-primary"><?= 'Rp.' . $penalty->count_days * PENALTY_PRICE ?></strong></td>
                 <td>
-                  <a href="delete.php?user_id=<?= $usr->id ?>"
-                     onclick="return confirm('apa anda yakin ingin menghapus data ini?')"
-                     class="btn btn-danger">Delete</a>
-                  <a href="edit.php?user_id=<?= $usr->id ?>" class="btn btn-success">Edit</a>
+                  <?php
+                  if ($penalty->status === 'Paid') {
+                    echo " <span class='badge badge-success'>{$penalty->status}</span> ";
+                  } elseif ($penalty->status === 'Unpaid') {
+                    echo " <span class='badge badge-danger'>{$penalty->status}</span> ";
+                  } else {
+                    echo " <span class='badge badge-warning'>{$penalty->status}</span> ";
+                  }
+                  ?>
+                </td>
+                <td>
+                  <a href="payment-penalty.php?id=<?= $penalty->id ?>" class="btn btn-primary"><i
+                      class="fas fa-credit-card mr-1"></i> Payment</a>
                 </td>
               </tr>
             <?php endforeach; ?>
             </tbody>
           </table>
         </div>
+
       </section>
     </div>
     <footer class="main-footer">
@@ -176,19 +180,11 @@ $users = $userController->index();
 <script src="<?= asset('js/stisla.js') ?>"></script>
 
 <!-- JS Libraies -->
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-<script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"></script>
 
-<script !src="">
-  $(document).ready(function () {
-    $('#myTable').DataTable();
-  });
-</script>
+<!-- Page Specific JS File -->
 
 <!-- Template JS File -->
 <script src="<?= asset('js/scripts.js') ?>"></script>
 <script src="<?= asset('js/custom.js') ?>"></script>
 </body>
-
 </html>

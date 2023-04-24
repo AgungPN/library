@@ -4,21 +4,24 @@ require_once __DIR__ . "/../../env.php";
 
 class Database
 {
+  /** data connection variable */
   private $host = DB_HOST, $username = DB_USERNAME, $password = DB_PASSWORD, $database = DB_NAME;
-  private ?string $table, $where = '';
+  private $table, $where = '';
   private array $query = [];
-  public $mysql, $affected_rows;
+  /** instance mysql  */
+  public $mysql;
+  /** affected result query */
+  public $affected_rows;
 
   /** connect to database */
   public function __construct()
   {
-    // show error sql
-    mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
     $this->mysql = new \mysqli($this->host, $this->username, $this->password, $this->database);
   }
 
   /**
    * setter table
+   *
    * @param string $table name table
    * @return Database this object
    */
@@ -31,50 +34,59 @@ class Database
 
   /**
    * to run query
+   *
    * @param string $sql syntax sql
    * @param ?string $bind bind prepare
    * @param array ...$args spread operator argument
    */
   public function query($sql, $bind = null, ...$args)
   {
-    // without bind
+    // if not set arguments
     if (is_null($args) || count($args) == 0) {
+      // then run directly sql
       return $this->mysql->query($sql);
     }
 
+    // prepare SQL query
     $stmp = $this->mysql->prepare($sql);
+
     if (!is_null($bind) && !is_null($args)) {
+      // bind param
       $stmp->bind_param($bind, ...$args);
     }
+    // execute query
     $stmp->execute();
+    // get result
     $result = $stmp->get_result();
+    // and set field affected_rows with result query
     $this->affected_rows = $stmp->affected_rows;
+    // close prepare SQL
     $stmp->close();
     return $result;
   }
 
   /**
    * count record data database
-   * @return ?int count recourd
+   * @return ?int count
+   * @TODO: intended of num_rows use COUNT by database
    */
   public function num_rows(): ?int
   {
     $sql = "SELECT * FROM {$this->table} {$this->where}";
+    // count data in sql
     return $this->query($sql)->num_rows;
   }
 
   /**
    * where for syntax sql
+   *
    * @param string $field field where
    * @param string $operator operator
    * @param mixed $value value
    */
   public function where($field, $operator, $value)
   {
-    if (is_string($value))
-      $val = (string)"$value";
-    else
-      $val = $value;
+    // set where syntax
     $where = "WHERE {$field} {$operator} ";
     $where .= is_string($value) ? "'$value'" : $value;
     $this->where = $where;
@@ -104,15 +116,22 @@ class Database
   /** get list data */
   public function getList(?string $sql = null): ?object
   {
+    /** if not set directly SQL then use class data */
     if (is_null($sql)) {
+      // limit populate data
       $limit = isset($this->query['limit']) ? $this->query['limit'] : '';
+      // set OFFSET start get data
       $offset = isset($this->query['offset']) ? $this->query['offset'] : '';
-      $rows = [];
+      // template SQL query to get data
       $sql = "SELECT * FROM {$this->table} {$this->where} {$limit} {$offset}";
     }
+    // run query SQL
     $query = $this->query($sql);
+    $rows = [];
+    // fetch data with object types
     while ($row = $query->fetch_object())
       $rows[] = $row;
+    // convert array to object
     return (object)$rows;
   }
 
@@ -124,6 +143,7 @@ class Database
     }
     $sql = "SELECT * FROM {$this->table} {$this->where}";
     $result = $this->query($sql);
+    // fetch only one data
     return $result->fetch_object();
   }
 
@@ -137,16 +157,20 @@ class Database
   public function insert(string $field, ?string $bind = null, ...$args)
   {
     $len = strlen($bind);
+
+    // example goal $var is:  ?,?,?,?
     $val = '';
     for ($i = 1; $i <= $len; $i++) {
-      $val .= '?';
-      if ($i != $len)
-        $val .= ',';
+      $val .= '?,';
     }
+    // remove last ',' example "?,?,?,?," to "?,?,?,?"
+    $val = rtrim($val, ',');
+
     $sql = "INSERT INTO {$this->table} ({$field}) VALUES ({$val})";
     try {
       $this->query($sql, $bind, ...$args);
     } catch (\Throwable $th) {
+      // if found error print and stop app
       var_dump($th->getMessage());
       die;
     }
@@ -166,16 +190,21 @@ class Database
     $val = [];
     $len = sizeof($field);
     $i = 1;
+
+    // example goal $set = "name = ?, email = ?, password = ?"
     foreach ($field as $key => $value) {
       $val[$i - 1] = $value;
       $set .= "$key = ?";
       if ($len != $i++)
         $set .= ',';
     }
+
     $val[$len] = $id;
     $where = is_null($id) ? '' : 'WHERE id = ?';
     $sql = "UPDATE {$this->table} SET {$set} {$where}";
+
     try {
+      // call query method with bind and value
       $this->query($sql, $bind, ...$val);
     } catch (\Throwable $th) {
       var_dump($th->getMessage());
@@ -184,12 +213,8 @@ class Database
     return $this->affected_rows;
   }
 
-  /**
-   * delete from database
-   *
-   * @param int $id id
-   */
-  public function destroy(int $id)
+  /** delete from database */
+  public function destroy($id)
   {
     $sql = "DELETE FROM {$this->table} WHERE id = ?";
     try {

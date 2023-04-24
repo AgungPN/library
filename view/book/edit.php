@@ -60,7 +60,7 @@ if (isset($_POST['update-book'])) {
 <body>
 
 <?php FlashMessage::getFlashMessageArray(); ?>
-<?php FlashMessage::message(); ?>
+<?php FlashMessage::getMessage(); ?>
 
 <div id="app">
   <div class="main-wrapper main-wrapper-1">
@@ -92,14 +92,19 @@ if (isset($_POST['update-book'])) {
     <div class="main-sidebar sidebar-style-2">
       <aside id="sidebar-wrapper">
         <div class="sidebar-brand">
-          <a href="index.html">Library</a>
+          <a href="">Library</a>
         </div>
         <div class="sidebar-brand sidebar-brand-sm">
           <a href="index.html">St</a>
         </div>
         <ul class="sidebar-menu">
           <li class="menu-header">Dashboard</li>
-          <li><a class="nav-link" href="credits.html"><i class="fas fa-solid fa-book"></i> <span>Books</span></a></li>
+          <li><a class="nav-link" href="../book/index.php"><i class="fas fa-solid fa-book"></i> <span>Books</span></a>
+          </li>
+          <li><a class="nav-link" href="../user/index.php"><i class="fas fa-solid fa-users"></i> <span>Users</span></a>
+          </li>
+          <li><a class="nav-link" href="../penalty/index.php"><i class="fas fa-solid fa-exclamation-circle"></i> <span>Penalty</span></a>
+          </li>
         </ul>
       </aside>
     </div>
@@ -113,7 +118,7 @@ if (isset($_POST['update-book'])) {
 
         <div class="section-body">
           <div class="col-md-8">
-            <div class="card">
+            <div class="card card-success">
               <div class="card-header">
                 <h4 class=" w-100 text-center text-success">Update Books</h4>
               </div>
@@ -154,12 +159,12 @@ if (isset($_POST['update-book'])) {
 
                   <div class="form-group">
                     <label>File PDF E-Book</label>
-                    <input type="file" class="form-control" name="file">
+                    <input type="file" class="form-control" name="file" accept="application/pdf">
                   </div>
 
                   <div class="form-group">
                     <label>Cover</label>
-                    <input type="file" class="form-control" name="cover">
+                    <input type="file" class="form-control" name="cover" accept="image/*">
                   </div>
 
 
@@ -180,9 +185,9 @@ if (isset($_POST['update-book'])) {
     </div>
     <footer class="main-footer">
       <div class="footer-left">
-        Copyright &copy; 2018
+        Copyright &copy; 2023
         <div class="bullet"></div>
-        Design By <a href="https://nauval.in/">Muhamad Nauval Azhar</a>
+        Design By <a href="">Kelompok Library</a>
       </div>
       <div class="footer-right">
 

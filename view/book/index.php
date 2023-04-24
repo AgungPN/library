@@ -55,7 +55,7 @@ $books = $bookController->index();
 
 <body>
 
-<?php FlashMessage::message(); ?>
+<?php FlashMessage::getMessage(); ?>
 
 <div id="app">
   <div class="main-wrapper main-wrapper-1">
@@ -87,14 +87,16 @@ $books = $bookController->index();
     <div class="main-sidebar sidebar-style-2">
       <aside id="sidebar-wrapper">
         <div class="sidebar-brand">
-          <a href="index.html">Library</a>
+          <a href="">Library</a>
         </div>
         <div class="sidebar-brand sidebar-brand-sm">
           <a href="index.html">St</a>
         </div>
         <ul class="sidebar-menu">
           <li class="menu-header">Dashboard</li>
-          <li><a class="nav-link" href="credits.html"><i class="fas fa-solid fa-book"></i> <span>Books</span></a></li>
+          <li><a class="nav-link" href="../book/index.php"><i class="fas fa-solid fa-book"></i> <span>Books</span></a></li>
+          <li><a class="nav-link" href="../user/index.php"><i class="fas fa-solid fa-users"></i> <span>Users</span></a></li>
+          <li><a class="nav-link" href="../penalty/index.php"><i class="fas fa-solid fa-exclamation-circle"></i> <span>Penalty</span></a></li>
         </ul>
       </aside>
     </div>
@@ -125,11 +127,11 @@ $books = $bookController->index();
             foreach ($books as $book): ?>
               <tr>
                 <td><?= $i++ ?></td>
-                <td><img src="<?= asset("covers/".$book->cover) ?>" alt="cover" width="70" height="70"></td>
+                <td><img src="<?= asset("covers/" . $book->cover) ?>" alt="cover" width="70" height="70"></td>
                 <td><?= $book->name ?></td>
                 <td><?= $book->author ?></td>
                 <td><?= $book->publish_at ?></td>
-                <td class="badge badge-secondary"><?= $book->category ?></td>
+                <td><span class="badge badge-secondary"><?= $book->category ?></span></td>
                 <td>
                   <a href="delete.php?book_id=<?= $book->id ?>"
                      onclick="return confirm('apa anda yakin ingin menghapus data ini?')"

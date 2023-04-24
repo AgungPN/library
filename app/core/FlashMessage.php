@@ -1,8 +1,8 @@
 <?php
-if (!session_id()) session_start();
 
 class FlashMessage
 {
+  /** set single message */
   public static function setFlash(string $type, string $message)
   {
     $_SESSION["flash"] = [
@@ -10,19 +10,25 @@ class FlashMessage
       "message" => $message
     ];
   }
-  public static function message()
+  
+  /** get message */
+  public static function getMessage()
   {
     if (isset($_SESSION['flash'])) {
+      // call printMessage with static calling method
       self::printMessage($_SESSION['flash']['type'], $_SESSION['flash']['message']);
+      // remove session because already used
       unset($_SESSION['flash']);
     }
   }
 
+  /** set flash message by array */
   public static function setFlashMessageArray(string $typeIcon, array $messages): void
   {
     $_SESSION["flashArray"] = ["type" => $typeIcon, "messages" => (object)$messages];
   }
 
+  /** get flash message by array errors */
   public static function getFlashMessageArray(): void
   {
     if (isset($_SESSION["flashArray"])) {
@@ -34,11 +40,12 @@ class FlashMessage
         self::printMessage($type, $message);
       }
 
-      // echo "<script>console.log('".$message."')</script>";
     }
+    // remove session message
     unset($_SESSION['flashArray']);
   }
 
+  /** private method to helper print message with error or success popup */
   private static function printMessage($type, $message)
   {
     if ($type == "success") {

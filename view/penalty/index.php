@@ -4,12 +4,15 @@ require_once __DIR__ . "/../../app/init.php";
 if (!isLoggedToAdmin()) {
   to_view("auth-login");
 }
-
-$db = new Database();
 $user = userAuth();
 
-$userController = new User();
-$users = $userController->index();
+$penaltyService = new Penalty();
+$penalties = $penaltyService->allPenalties();
+
+if (isset($_POST['change-status'])) {
+  $penaltyService->updateStatus($_POST['penalty_id'], $_POST['status']);
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -25,6 +28,12 @@ $users = $userController->index();
 
   <!-- CSS Libraries -->
   <link rel="stylesheet" href="<?= asset('modules/izitoast/css/iziToast.min.css') ?>">
+
+  <style>
+    .custom-section {
+      position: static !important;
+    }
+  </style>
 
   <!-- Template CSS -->
   <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
@@ -94,21 +103,18 @@ $users = $userController->index();
         </div>
         <ul class="sidebar-menu">
           <li class="menu-header">Dashboard</li>
-          <li><a class="nav-link" href="../book/index.php"><i class="fas fa-solid fa-book"></i> <span>Books</span></a>
-          </li>
-          <li><a class="nav-link" href="../user/index.php"><i class="fas fa-solid fa-users"></i> <span>Users</span></a>
-          </li>
-          <li><a class="nav-link" href="../penalty/index.php"><i class="fas fa-solid fa-exclamation-circle"></i> <span>Penalty</span></a>
-          </li>
+          <li><a class="nav-link" href="../book/index.php"><i class="fas fa-solid fa-book"></i> <span>Books</span></a></li>
+          <li><a class="nav-link" href="../user/index.php"><i class="fas fa-solid fa-users"></i> <span>Users</span></a></li>
+          <li><a class="nav-link" href="../penalty/index.php"><i class="fas fa-solid fa-exclamation-circle"></i> <span>Penalty</span></a></li>
         </ul>
       </aside>
     </div>
 
     <!-- Main Content -->
     <div class="main-content">
-      <section class="section">
+      <section class="section custom-section">
         <div class="section-header">
-          <h1>User Management</h1>
+          <h1>Penalty Management</h1>
         </div>
 
         <div class="section-body">
@@ -116,41 +122,108 @@ $users = $userController->index();
             <thead>
             <tr>
               <th>No</th>
-              <th>Name</th>
-              <th width="25%">Address</th>
-              <th>Email</th>
-              <th>Gender</th>
-              <th>Role</th>
+              <th>User Name</th>
+              <th>Book Name</th>
+              <th>Expired Days</th>
+              <th>Penalty Price</th>
+              <th>Status</th>
               <th>Action</th>
             </tr>
             </thead>
             <tbody>
             <?php $i = 1;
-            foreach ($users as $usr): ?>
+            foreach ($penalties as $penalty): ?>
               <tr>
                 <td><?= $i++ ?></td>
-                <td><?= $usr->name ?></td>
-                <td><?= $usr->address ?></td>
-                <td><?= $usr->email ?></td>
-                <td><?= $usr->gender ?></td>
-                <td><?php
-                  if ($usr->is_admin == 1) {
-                    echo "<div class='badge badge-warning'>Admin</div>";
-                  } else {
-                    echo "<div class='badge badge-info'>Visitor</div>";
-                  }
-                  ?></td>
+                <td><?= $penalty->username ?></td>
+                <td><?= $penalty->name ?></td>
+                <td><strong class="text-danger"><?= $penalty->count_days ?> Days</strong></td>
+                <td><strong class="text-primary"><?= 'Rp.' . $penalty->count_days * PENALTY_PRICE ?></strong></td>
                 <td>
-                  <a href="delete.php?user_id=<?= $usr->id ?>"
-                     onclick="return confirm('apa anda yakin ingin menghapus data ini?')"
-                     class="btn btn-danger">Delete</a>
-                  <a href="edit.php?user_id=<?= $usr->id ?>" class="btn btn-success">Edit</a>
+                  <?php
+                  if ($penalty->status === 'Paid') {
+                    echo " <span class='badge badge-success'>{$penalty->status}</span> ";
+                  } elseif ($penalty->status === 'Unpaid') {
+                    echo " <span class='badge badge-danger'>{$penalty->status}</span> ";
+                  } else {
+                    echo " <span class='badge badge-warning'>{$penalty->status}</span> ";
+                  }
+                  ?>
+                </td>
+                <td>
+                  <button class="btn btn-primary" data-toggle="modal" data-target="#proof<?= $penalty->id ?>">
+                    View Penalty
+                  </button>
+
+                  <button class="btn btn-warning" data-toggle="modal" data-target="#change-status<?= $penalty->id ?>">
+                    Change Status
+                  </button>
                 </td>
               </tr>
+
+              <!--    Modal Proof        -->
+              <div class="modal fade" tabindex="-1" role="dialog" id="proof<?= $penalty->id ?>"
+                   aria-hidden="true"
+                   style="display: none;">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title">Proof Payment Penalty</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <img src="<?= asset('proof-penalties/' . ($penalty->proof ?? '')) ?>" alt="Noting Proof payment"
+                           width="100%" height="500">
+                    </div>
+                    <div class="modal-footer bg-whitesmoke br">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <!--                      <button type="button" class="btn btn-primary">Save changes</button>-->
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!--    Modal Change Status        -->
+              <div class="modal fade" tabindex="-1" role="dialog" id="change-status<?= $penalty->id ?>"
+                   aria-hidden="true"
+                   style="display: none;">
+                <div class="modal-dialog" role="document">
+                  <form action="" method="post">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title">Change Status</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">×</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <input type="hidden" name="penalty_id" value="<?= $penalty->id ?>">
+                        <div class="form-group">
+                          <label>Status</label>
+                          <select class="form-control" name="status">
+                            <option value="Unconfirmed">Unconfirmed</option>
+                            <option value="Paid">Paid</option>
+                            <option value="Unpaid">Unpaid</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="modal-footer bg-whitesmoke br">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" name="change-status" class="btn btn-primary">Save</button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+
+
             <?php endforeach; ?>
             </tbody>
           </table>
         </div>
+
       </section>
     </div>
     <footer class="main-footer">

@@ -6,11 +6,11 @@ if (!isLoggedToVisitor()) {
 }
 $user = userAuth();
 
-$bookController = new Book();
-$books = $bookController->index();
+$penaltyService = new Penalty();
+$penalty = $penaltyService->detailPenalty($_GET['id'] ?? '');
 
-if (isset($_GET['search'])) {
-  $books = $bookController->index($_GET['search']);
+if (isset($_POST['payment'])){
+  $penaltyService->payment($_GET['id']);
 }
 
 ?>
@@ -51,26 +51,20 @@ if (isset($_GET['search'])) {
 </head>
 
 <body class="layout-3">
-
-<?php FlashMessage::getMessage(); ?>
-
 <div id="app">
   <div class="main-wrapper container">
     <div class="navbar-bg"></div>
     <nav class="navbar navbar-expand-lg main-navbar">
-      <a href="#" class="navbar-brand sidebar-gone-hide">Library</a>
+      <a href="index.html" class="navbar-brand sidebar-gone-hide">Library</a>
       <a href="#" class="nav-link sidebar-gone-show" data-toggle="sidebar"><i class="fas fa-bars"></i></a>
       <div class="nav-collapse">
         <a class="sidebar-gone-show nav-collapse-toggle nav-link" href="#">
           <i class="fas fa-ellipsis-v"></i>
         </a>
         <ul class="navbar-nav">
-          <li class="nav-item active"><a href="../visitor-book/index.php" class="nav-link">
-              <i class="fas fa-book mr-1"></i>Books</a></li>
-          <li class="nav-item"><a href="../visitor-collection/book-collections.php" class="nav-link">
-              <i class="fas fa-list mr-1"></i>Collections</a></li>
-          <li class="nav-item"><a href="../visitor-penalty/user-penalty.php" class="nav-link">
-              <i class="fas fa-exclamation-circle mr-1"></i>Penalty</a></li>
+          <li class="nav-item active"><a href="#" class="nav-link">Application</a></li>
+          <li class="nav-item"><a href="#" class="nav-link">Report Something</a></li>
+          <li class="nav-item"><a href="#" class="nav-link">Server Status</a></li>
         </ul>
       </div>
       <form class="form-inline ml-auto" method="get" action="">
@@ -95,7 +89,7 @@ if (isset($_GET['search'])) {
     <nav class="navbar navbar-secondary navbar-expand-lg">
       <div class="container">
         <div class="navbar-nav">
-          <h1 class=" fa-2x">List Books</h1>
+          <h1 class=" fa-2x">User Penalties</h1>
         </div>
       </div>
     </nav>
@@ -103,29 +97,38 @@ if (isset($_GET['search'])) {
     <!-- Main Content -->
     <div class="main-content">
       <section class="section">
-        <div class="row">
+        <div class="section-body row">
+          <div class="col-md-3"></div>
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <h4 class=" w-100 text-center text-primary">Payment Penalty</h4>
+              </div>
+              <div class="card-body">
+                <form action="" method="post" enctype="multipart/form-data">
 
-          <?php foreach ($books as $book): ?>
-            <div class="col-12 col-sm-6 col-md-6 col-lg-3">
-              <article class="article article-style-b">
-                <div class="article-header">
-                  <div class="article-image" data-background="<?= asset($book->cover) ?>"
-                       style="background-image: url('<?= asset('covers/' . $book->cover) ?>');">
+                  <div class="form-group">
+                    <label>Proof Payment</label>
+                    <input type="file" class="form-control" name="proof" accept="image/*">
                   </div>
-                </div>
-                <div class="article-details">
-                  <div class="article-title">
-                    <h2><a href="detail.php?id=<?= $book->id ?>"><?= $book->name ?></a></h2>
+
+                  <div class="d-flex justify-content-between">
+                    <div class="card-footer">
+                      <a class="btn btn-warning" href="user-penalty.php"><i
+                          class="fas fa-backward mr-1"></i> Back</a>
+                    </div>
+
+                    <div class="card-footer">
+                      <button class="btn btn-primary" name="payment"><i class="fas fa-credit-card mr-1"></i> Payment
+                      </button>
+                    </div>
                   </div>
-                  <p><?= limit_word($book->description) ?></p>
-                  <div class="article-cta">
-                    <a href="detail.php?id=<?= $book->id ?>">Read More <i class="fas fa-chevron-right"></i></a>
-                  </div>
-                </div>
-              </article>
+
+                </form>
+              </div>
             </div>
-          <?php endforeach; ?>
 
+          </div>
         </div>
       </section>
     </div>

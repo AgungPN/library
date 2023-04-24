@@ -41,7 +41,7 @@ class Storage
 
     // setup name file
     if (is_null($nameFile))
-      $nameFile = microtime() . '_' . uniqid() . '.' . $getImageExtension;
+      $nameFile = uniqid() . '.' . $getImageExtension;
     else
       $nameFile = $nameFile . "." . $getImageExtension;
 
